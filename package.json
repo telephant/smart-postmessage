@@ -1,0 +1,19 @@
+{
+  "name": "promise-message",
+  "version": "1.0.0",
+  "description": "use message like promise",
+  "main": "index.ts",
+  "scripts": {
+    "build": "tsc --project ./tsconfig.json",
+    "test": "npm run test"
+  },
+  "keywords": [
+    "promise",
+    "message"
+  ],
+  "author": "telephant11",
+  "license": "ISC",
+  "devDependencies": {
+    "typescript": "^4.9.3"
+  }
+}
