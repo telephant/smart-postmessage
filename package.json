@@ -4,16 +4,23 @@
   "description": "use message like promise",
   "main": "index.ts",
   "scripts": {
-    "build": "tsc --project ./tsconfig.json",
-    "test": "npm run test"
+    "build": "rollup --config",
+    "test": "tsc --project ./tsconfig.json"
   },
   "keywords": [
     "promise",
     "message"
   ],
+  "type": "module",
   "author": "telephant11",
   "license": "ISC",
   "devDependencies": {
+    "@rollup/plugin-node-resolve": "^15.0.1",
+    "@rollup/plugin-typescript": "^10.0.1",
+    "rollup": "^3.6.0",
+    "tslib": "^2.4.1"
+  },
+  "dependencies": {
     "typescript": "^4.9.3"
   }
 }
