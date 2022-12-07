@@ -1,6 +1,9 @@
 import { MessageStructure } from '../src/message-handler';
 import SmartPostMessage from '../src/index';
-import { MessageMethod } from '../src/message-method';
+import {
+  MsgReqMethod,
+  MsgNotifyMethod,
+} from '../src/message-method';
 
 const test = async () => {
   const iframe = document.createElement('iframe');
@@ -22,12 +25,12 @@ const test = async () => {
       currentWindow: window,
     });
 
-    smartPM.subscribe(MessageMethod.pwdChange, (message: MessageStructure) => {
+    smartPM.subscribe(MsgNotifyMethod.pwdChange, (message: MessageStructure) => {
       console.log('🚀 ===== smartPM.subscribe ===== message', message);
     });
 
     console.log('resp start');
-    const resp = await smartPM.request<{ content: string, from: string }>(MessageMethod.sayHello, { name: 'yetao' })
+    const resp = await smartPM.request<{ content: string, from: string }>(MsgReqMethod.sayHello, { name: 'yetao' })
     console.log(resp);
     alert(JSON.stringify(resp));
   }

@@ -1,6 +1,9 @@
 import { MessageStructure } from '../src/message-handler';
 import SmartPostMessage from '../src/index';
-import { MessageMethod } from '../src/message-method';
+import {
+  MsgReqMethod,
+  MsgNotifyMethod,
+} from '../src/message-method';
 
 const init = async () => {
   if (!window.parent.window) {
@@ -13,7 +16,7 @@ const init = async () => {
     currentWindow: window,
   });
 
-  smartPM.observe(MessageMethod.sayHello, (message: MessageStructure) => {
+  smartPM.observe(MsgReqMethod.sayHello, (message: MessageStructure) => {
     const newObj = {
       content: `hello, ${message.data.name}!`,
       from: 'user 1',
@@ -28,7 +31,7 @@ const init = async () => {
   });
 
   setTimeout(() => {
-    smartPM.notify(MessageMethod.pwdChange, { newPwd: 'new111' });
+    smartPM.notify(MsgNotifyMethod.pwdChange, { newPwd: 'new111' });
   }, 3000);
 }
 

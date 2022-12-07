@@ -2,7 +2,10 @@ import MessageHandler, {
   MessageType,
   MessageStructure,
 } from './message-handler';
-import { MessageMethod } from './message-method'
+import {
+  MsgReqMethod,
+  MsgNotifyMethod,
+} from './message-method'
 
 export interface RequestItem<R> {
   data: MessageStructure;
@@ -25,9 +28,9 @@ class SmartPostMessage {
 
   private _requestedMap: Map<string, RequestItem<any>> = new Map();
 
-  private _subscribeFunc: Map<MessageMethod, ((data: MessageStructure) => any)[]> = new Map();
+  private _subscribeFunc: Map<MsgNotifyMethod, ((data: MessageStructure) => any)[]> = new Map();
 
-  private _observeFunc: Map<MessageMethod, ((data: MessageStructure) => any)> = new Map();
+  private _observeFunc: Map<MsgReqMethod, ((data: MessageStructure) => any)> = new Map();
 
   constructor(spec: SmartPostMessageSpecs) {
     this._targetOrigin = spec.targetOrigin;
@@ -43,7 +46,7 @@ class SmartPostMessage {
     this._targetWindow.postMessage(msg, this._targetOrigin);
   }
 
-  async request<R>(method: MessageMethod, args: any) {
+  async request<R>(method: MsgReqMethod, args: any) {
     const msg = MessageHandler.createReq(method, args);
 
     return new Promise<R>((resolve, reject) => {
@@ -57,12 +60,12 @@ class SmartPostMessage {
     });
   }
 
-  notify(method: MessageMethod, args: any) {
+  notify(method: MsgNotifyMethod, args: any) {
     const msg = MessageHandler.createNotify(method, args);
     this._send(msg);
   }
 
-  subscribe(method: MessageMethod, cb: (m: MessageStructure) => void) {
+  subscribe(method: MsgNotifyMethod, cb: (m: MessageStructure) => void) {
     const existCbs = this._subscribeFunc.get(method) ?? [];
     const index = existCbs.length;
     this._subscribeFunc.set(method, [...existCbs, cb]);
@@ -75,16 +78,15 @@ class SmartPostMessage {
     };
   }
 
-  unsubscribe(method: MessageMethod) {
+  unsubscribe(method: MsgNotifyMethod) {
     this._subscribeFunc.delete(method);
   }
 
-  observe(method: MessageMethod, cb: (m: MessageStructure) => void) {
+  observe(method: MsgReqMethod, cb: (m: MessageStructure) => void) {
     this._observeFunc.set(method, cb);
-    console.log('🚀 ===== handleReq ===== cb', this._observeFunc.entries());
   }
 
-  unobserve(method: MessageMethod) {
+  unobserve(method: MsgReqMethod) {
     this._observeFunc.delete(method);
   }
 
@@ -106,7 +108,7 @@ class SmartPostMessage {
     }
   }
 
-  handleReq(event: MessageStructure) {
+  handleReq(event: MessageStructure<MsgReqMethod>) {
     const { msgId, method } = event;
     const cb = this._observeFunc.get(method);
     if (!cb) {
@@ -117,7 +119,7 @@ class SmartPostMessage {
     this._send(msg);
   }
 
-  handleResp(event: MessageStructure) {
+  handleResp(event: MessageStructure<MsgReqMethod>) {
     const { msgId } = event;
     const respData = this._requestedMap.get(msgId);
     if (!respData) {
@@ -127,7 +129,7 @@ class SmartPostMessage {
     this._requestedMap.delete(msgId);
   }
 
-  handleNotify(event: MessageStructure) {
+  handleNotify(event: MessageStructure<MsgNotifyMethod>) {
     const { method } = event;
 
     const cbs = this._subscribeFunc.get(method);

@@ -1,5 +1,8 @@
 import { generateUniqueId } from './utils';
-import { MessageMethod } from './message-method';
+import {
+  MsgReqMethod,
+  MsgNotifyMethod,
+} from './message-method';
 
 export enum MessageType {
   Req = 'Req',
@@ -7,15 +10,15 @@ export enum MessageType {
   Notify = 'Notify',
 }
 
-export interface MessageStructure {
+export interface MessageStructure<M = MsgReqMethod | MsgNotifyMethod> {
   msgId: string;
-  method: MessageMethod;
+  method: M;
   data: any;
   type: MessageType;
 }
 
 export default class MessageHandler {
-  static createReq(method: MessageMethod, params: any) {
+  static createReq(method: MsgReqMethod, params: any) {
     const msgId = generateUniqueId(16);
     return {
       msgId,
@@ -25,7 +28,7 @@ export default class MessageHandler {
     };
   }
 
-  static createResp(method: MessageMethod, msgId: string, params: any) {
+  static createResp(method: MsgReqMethod, msgId: string, params: any) {
     return {
       msgId,
       method,
@@ -34,7 +37,7 @@ export default class MessageHandler {
     };
   }
 
-  static createNotify(method: MessageMethod, params: any) {
+  static createNotify(method: MsgNotifyMethod, params: any) {
     const msgId = generateUniqueId(16);
     return {
       msgId,
