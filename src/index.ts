@@ -11,11 +11,15 @@ export interface RequestItem<R> {
 }
 
 interface SmartPostMessageSpecs {
+  currentWindow: Window;
   targetWindow: Window;
   targetOrigin: string;
+  name: string;
 }
 
 class SmartPostMessage {
+  private _currentWindow: Window;
+
   private _targetWindow: Window;
 
   private _targetOrigin: string;
@@ -26,11 +30,16 @@ class SmartPostMessage {
 
   private _observeFunc: Map<MessageMethod, ((data: MessageStructure) => any)> = new Map();
 
+  private _name: string;
+
   constructor(spec: SmartPostMessageSpecs) {
     this._targetOrigin = spec.targetOrigin;
+    this._currentWindow = spec.currentWindow;
     this._targetWindow = spec.targetWindow;
 
-    this._targetWindow.addEventListener('message', (event: MessageEvent) => {
+    this._name = spec.name;
+
+    this._currentWindow.addEventListener('message', (event: MessageEvent) => {
       this.handleSubscription(event);
     });
   }
@@ -39,10 +48,8 @@ class SmartPostMessage {
     this._targetWindow.postMessage(msg, this._targetOrigin);
   }
 
-
-  async request<R>(method: MessageMethod, ...args: any) {
+  async request<R>(method: MessageMethod, args: any) {
     const msg = MessageHandler.createReq(method, args);
-
 
     return new Promise<R>((resolve, reject) => {
       // store in requestedMap.
@@ -55,7 +62,12 @@ class SmartPostMessage {
     });
   }
 
-  subscribe(method: MessageMethod, cb: () => void) {
+  notify(method: MessageMethod, args: any) {
+    const msg = MessageHandler.createNotify(method, args);
+    this._send(msg);
+  }
+
+  subscribe(method: MessageMethod, cb: (m: MessageStructure) => void) {
     const existCbs = this._subscribeFunc.get(method) ?? [];
     const index = existCbs.length;
     this._subscribeFunc.set(method, [...existCbs, cb]);
@@ -74,6 +86,7 @@ class SmartPostMessage {
 
   observe(method: MessageMethod, cb: (m: MessageStructure) => void) {
     this._observeFunc.set(method, cb);
+    console.log('🚀 ===== handleReq ===== cb', this._observeFunc.entries());
   }
 
   unobserve(method: MessageMethod) {
@@ -81,7 +94,7 @@ class SmartPostMessage {
   }
 
   handleSubscription(event: MessageEvent) {
-    if (event.origin !== this._targetOrigin) {
+    if (event.origin !== this._targetOrigin && this._targetOrigin !== '*') {
       return;
     }
 
@@ -120,7 +133,7 @@ class SmartPostMessage {
   }
 
   handleNotify(event: MessageStructure) {
-    const { msgId, method } = event;
+    const { method } = event;
 
     const cbs = this._subscribeFunc.get(method);
     if (!cbs || cbs.length === 0) {

@@ -1,8 +1,8 @@
 import { MessageMethod } from './message-method';
 export declare enum MessageType {
-    Req = 0,
-    Resp = 1,
-    Notify = 2
+    Req = "Req",
+    Resp = "Resp",
+    Notify = "Notify"
 }
 export interface MessageStructure {
     msgId: string;
@@ -23,7 +23,7 @@ export default class MessageHandler {
         data: any;
         type: MessageType;
     };
-    static createNotification(method: MessageMethod, msgId: string, params: any): {
+    static createNotify(method: MessageMethod, params: any): {
         msgId: string;
         method: MessageMethod;
         data: any;

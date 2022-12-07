@@ -3,34 +3,37 @@ import SmartPostMessage from './index';
 import { MessageMethod } from './message-method';
 
 const test = async () => {
-  const iframe1 = document.createElement('iframe');
-  const iframe2 = document.createElement('iframe');
-  const targetWindow1 = iframe1.contentWindow;
-  const targetWindow2 = iframe2.contentWindow;
-  if (!targetWindow1 || !targetWindow2) {
-    return null;
+  const iframe = document.createElement('iframe');
+
+  iframe.src = '../iframe.html';
+
+  document.body.appendChild(iframe);
+
+  iframe.onload = async () => {
+
+    const targetWindow = iframe.contentWindow;
+    if (!targetWindow) {
+      return null;
+    }
+
+    const smartPM = new SmartPostMessage({
+      targetOrigin: '*',
+      targetWindow,
+      currentWindow: window,
+      name: 'parent',
+    });
+
+    smartPM.subscribe(MessageMethod.pwdChange, (message: MessageStructure) => {
+      console.log('🚀 ===== smartPM.subscribe ===== message', message);
+    });
+
+    console.log('resp start');
+    const resp = await smartPM.request<{ content: string, from: string }>(MessageMethod.sayHello, { name: 'yetao' })
+    console.log(resp);
+    alert(JSON.stringify(resp));
   }
-
-  const smartPM1 = new SmartPostMessage({
-    targetOrigin: '*',
-    targetWindow: targetWindow1,
-  });
-
-  smartPM1.observe(MessageMethod.sayHello, (message: MessageStructure) => {
-    const newObj = {
-      content: `hello, ${message.data}!`,
-      from: 'user 1',
-    };
-    return newObj;
-  });
-
-  const smartPM2 = new SmartPostMessage({
-    targetOrigin: '*',
-    targetWindow: targetWindow1,
-  });
-  const resp = await smartPM2.request<{ content: string, from: string }>(MessageMethod.sayHello, { name: 'yetao' })
-  console.log(resp);
-  alert(resp);
 }
+
+test();
 
 export {};

@@ -2,9 +2,9 @@ import { generateUniqueId } from './utils';
 import { MessageMethod } from './message-method';
 
 export enum MessageType {
-  Req,
-  Resp,
-  Notify,
+  Req = 'Req',
+  Resp = 'Resp',
+  Notify = 'Notify',
 }
 
 export interface MessageStructure {
@@ -34,12 +34,13 @@ export default class MessageHandler {
     };
   }
 
-  static createNotification(method: MessageMethod, msgId: string, params: any) {
+  static createNotify(method: MessageMethod, params: any) {
+    const msgId = generateUniqueId(16);
     return {
       msgId,
       method,
       data: params,
-      type: MessageType.Resp,
+      type: MessageType.Notify,
     };
   }
 }

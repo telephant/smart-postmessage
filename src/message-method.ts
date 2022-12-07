@@ -1,5 +1,5 @@
 
 export enum MessageMethod {
-  sayHello,
-  pwdChange,
+  sayHello = 'sayHello',
+  pwdChange = 'pwdChange',
 }

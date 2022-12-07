@@ -1,5 +1,5 @@
 export declare enum MessageMethod {
-    sayHello = 0,
-    pwdChange = 1
+    sayHello = "sayHello",
+    pwdChange = "pwdChange"
 }
 //# sourceMappingURL=message-method.d.ts.map

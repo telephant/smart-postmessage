@@ -25,5 +25,17 @@ export default [
       resolve(),
       rollupTypescript(),
     ]
+  },
+  {
+    input: 'src/iframe.ts',
+    output: {
+      file: 'lib/iframe.js',
+      format: 'cjs',
+      exports: 'auto',
+    },
+    plugins: [
+      resolve(),
+      rollupTypescript(),
+    ]
   }
 ];
