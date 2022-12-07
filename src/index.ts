@@ -14,7 +14,6 @@ interface SmartPostMessageSpecs {
   currentWindow: Window;
   targetWindow: Window;
   targetOrigin: string;
-  name: string;
 }
 
 class SmartPostMessage {
@@ -30,14 +29,10 @@ class SmartPostMessage {
 
   private _observeFunc: Map<MessageMethod, ((data: MessageStructure) => any)> = new Map();
 
-  private _name: string;
-
   constructor(spec: SmartPostMessageSpecs) {
     this._targetOrigin = spec.targetOrigin;
     this._currentWindow = spec.currentWindow;
     this._targetWindow = spec.targetWindow;
-
-    this._name = spec.name;
 
     this._currentWindow.addEventListener('message', (event: MessageEvent) => {
       this.handleSubscription(event);

@@ -14,28 +14,4 @@ export default [
       rollupTypescript(),
     ]
   },
-  {
-    input: 'src/example.ts',
-    output: {
-      file: 'lib/example.js',
-      format: 'cjs',
-      exports: 'auto',
-    },
-    plugins: [
-      resolve(),
-      rollupTypescript(),
-    ]
-  },
-  {
-    input: 'src/iframe.ts',
-    output: {
-      file: 'lib/iframe.js',
-      format: 'cjs',
-      exports: 'auto',
-    },
-    plugins: [
-      resolve(),
-      rollupTypescript(),
-    ]
-  }
 ];

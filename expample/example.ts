@@ -1,6 +1,6 @@
-import { MessageStructure } from './message-handler';
-import SmartPostMessage from './index';
-import { MessageMethod } from './message-method';
+import { MessageStructure } from '../src/message-handler';
+import SmartPostMessage from '../src/index';
+import { MessageMethod } from '../src/message-method';
 
 const test = async () => {
   const iframe = document.createElement('iframe');
@@ -20,7 +20,6 @@ const test = async () => {
       targetOrigin: '*',
       targetWindow,
       currentWindow: window,
-      name: 'parent',
     });
 
     smartPM.subscribe(MessageMethod.pwdChange, (message: MessageStructure) => {

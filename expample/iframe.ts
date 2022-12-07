@@ -1,6 +1,6 @@
-import { MessageStructure } from './message-handler';
-import SmartPostMessage from './index';
-import { MessageMethod } from './message-method';
+import { MessageStructure } from '../src/message-handler';
+import SmartPostMessage from '../src/index';
+import { MessageMethod } from '../src/message-method';
 
 const init = async () => {
   if (!window.parent.window) {
@@ -11,7 +11,6 @@ const init = async () => {
     targetOrigin: '*',
     targetWindow: window.parent.window,
     currentWindow: window,
-    name: 'son iframe',
   });
 
   smartPM.observe(MessageMethod.sayHello, (message: MessageStructure) => {
@@ -27,7 +26,6 @@ const init = async () => {
     });
     return newObj;
   });
-
 
   setTimeout(() => {
     smartPM.notify(MessageMethod.pwdChange, { newPwd: 'new111' });
