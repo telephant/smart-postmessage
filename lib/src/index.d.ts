@@ -1,5 +1,4 @@
 import { MessageStructure } from './message-handler';
-import { MsgReqMethod, MsgNotifyMethod } from './message-method';
 export interface RequestItem<R> {
     data: MessageStructure;
     resolve: (value?: R) => void;
@@ -10,7 +9,7 @@ interface SmartPostMessageSpecs {
     targetWindow: Window;
     targetOrigin: string;
 }
-declare class SmartPostMessage {
+declare class SmartPostMessage<R, N> {
     private _currentWindow;
     private _targetWindow;
     private _targetOrigin;
@@ -19,16 +18,16 @@ declare class SmartPostMessage {
     private _observeFunc;
     constructor(spec: SmartPostMessageSpecs);
     _send(msg: MessageStructure): void;
-    request<R>(method: MsgReqMethod, args: any): Promise<R>;
-    notify(method: MsgNotifyMethod, args: any): void;
-    subscribe(method: MsgNotifyMethod, cb: (m: MessageStructure) => void): () => void;
-    unsubscribe(method: MsgNotifyMethod): void;
-    observe(method: MsgReqMethod, cb: (m: MessageStructure) => void): void;
-    unobserve(method: MsgReqMethod): void;
+    request<R>(method: string, args: any): Promise<R>;
+    notify(method: string, args: any): void;
+    subscribe(method: string, cb: (m: MessageStructure) => void): () => void;
+    unsubscribe(method: string): void;
+    observe(method: string, cb: (m: MessageStructure) => void): void;
+    unobserve(method: string): void;
     handleSubscription(event: MessageEvent): void;
-    handleReq(event: MessageStructure<MsgReqMethod>): void;
-    handleResp(event: MessageStructure<MsgReqMethod>): void;
-    handleNotify(event: MessageStructure<MsgNotifyMethod>): void;
+    handleReq(event: MessageStructure): void;
+    handleResp(event: MessageStructure): void;
+    handleNotify(event: MessageStructure): void;
 }
 export default SmartPostMessage;
 //# sourceMappingURL=index.d.ts.map

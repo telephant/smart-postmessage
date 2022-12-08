@@ -1,31 +1,30 @@
-import { MsgReqMethod, MsgNotifyMethod } from './message-method';
 export declare enum MessageType {
     Req = "Req",
     Resp = "Resp",
     Notify = "Notify"
 }
-export interface MessageStructure<M = MsgReqMethod | MsgNotifyMethod> {
+export interface MessageStructure {
     msgId: string;
-    method: M;
+    method: string;
     data: any;
     type: MessageType;
 }
 export default class MessageHandler {
-    static createReq(method: MsgReqMethod, params: any): {
+    static createReq(method: string, params: any): {
         msgId: string;
-        method: MsgReqMethod;
+        method: string;
         data: any;
         type: MessageType;
     };
-    static createResp(method: MsgReqMethod, msgId: string, params: any): {
+    static createResp(method: string, msgId: string, params: any): {
         msgId: string;
-        method: MsgReqMethod;
+        method: string;
         data: any;
         type: MessageType;
     };
-    static createNotify(method: MsgNotifyMethod, params: any): {
+    static createNotify(method: string, params: any): {
         msgId: string;
-        method: MsgNotifyMethod;
+        method: string;
         data: any;
         type: MessageType;
     };
