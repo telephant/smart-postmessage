@@ -1,9 +1,13 @@
 import { MessageStructure } from '../src/message-handler';
 import SmartPostMessage from '../src/index';
-import {
-  MsgReqMethod,
-  MsgNotifyMethod,
-} from '../src/message-method';
+
+const msgReqMethod = {
+  sayHello: 'sayHello',
+};
+
+const msgNotifyMethod = {
+  pwdChange: 'pwdChange',
+};
 
 const test = async () => {
   const iframe = document.createElement('iframe');
@@ -25,12 +29,12 @@ const test = async () => {
       currentWindow: window,
     });
 
-    smartPM.subscribe(MsgNotifyMethod.pwdChange, (message: MessageStructure) => {
+    smartPM.subscribe(msgNotifyMethod.pwdChange, (message: MessageStructure) => {
       console.log('🚀 ===== smartPM.subscribe ===== message', message);
     });
 
     console.log('resp start');
-    const resp = await smartPM.request<{ content: string, from: string }>(MsgReqMethod.sayHello, { name: 'yetao' })
+    const resp = await smartPM.request<{ content: string, from: string }>(msgReqMethod.sayHello, { name: 'yetao' })
     console.log(resp);
     alert(JSON.stringify(resp));
   }
@@ -38,4 +42,4 @@ const test = async () => {
 
 test();
 
-export {};
+export { };

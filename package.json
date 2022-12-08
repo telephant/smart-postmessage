@@ -2,7 +2,7 @@
   "name": "promise-message",
   "version": "1.0.0",
   "description": "use message like promise",
-  "main": "index.ts",
+  "main": "./src/index.ts",
   "scripts": {
     "build": "rollup --config",
     "test": "tsc --project ./tsconfig.json"
