@@ -16,13 +16,13 @@ export default class MessageHandler {
         data: any;
         type: MessageType;
     };
-    static createResp<T>(method: string, msgId: string, params: any): {
+    static createResp(method: string, msgId: string, params: any): {
         msgId: string;
         method: string;
         data: any;
         type: MessageType;
     };
-    static createNotify<T>(method: string, params: any): {
+    static createNotify(method: string, params: any): {
         msgId: string;
         method: string;
         data: any;

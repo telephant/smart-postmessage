@@ -1,7 +1,3 @@
-export declare enum MsgReqMethod {
-    sayHello = "sayHello"
-}
-export declare enum MsgNotifyMethod {
-    pwdChange = "pwdChange"
-}
+export type MsgReqMethod = string;
+export type MsgNotifyMethod = string;
 //# sourceMappingURL=message-method.d.ts.map

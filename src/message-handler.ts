@@ -24,7 +24,7 @@ export default class MessageHandler {
     };
   }
 
-  static createResp<T>(method: string, msgId: string, params: any) {
+  static createResp(method: string, msgId: string, params: any) {
     return {
       msgId,
       method,
@@ -33,7 +33,7 @@ export default class MessageHandler {
     };
   }
 
-  static createNotify<T>(method: string, params: any) {
+  static createNotify(method: string, params: any) {
     const msgId = generateUniqueId(16);
     return {
       msgId,
