@@ -3,24 +3,28 @@ import { generateUniqueId } from './utils';
 export enum MessageType {
   Req = 'Req',
   Resp = 'Resp',
+  RespError = 'RespError',
   Notify = 'Notify',
 }
 
-export interface MessageStructure {
+export interface MessageStructure<T = any> {
   msgId: string;
   method: string;
-  data: any;
+  data: T;
+  error?: any,
   type: MessageType;
+  pathname: string;
 }
 
 export default class MessageHandler {
-  static createReq(method: string, params: any) {
+  static createReq<T>(method: string, params: T | null) {
     const msgId = generateUniqueId(16);
     return {
       msgId,
       method,
       data: params,
       type: MessageType.Req,
+      pathname: location.pathname
     };
   }
 
@@ -30,16 +34,29 @@ export default class MessageHandler {
       method,
       data: params,
       type: MessageType.Resp,
+      pathname: location.pathname
     };
   }
 
-  static createNotify(method: string, params: any) {
+  static createRespError(method: string, msgId: string, error: any) {
+    return {
+      msgId,
+      method,
+      data: {},
+      error,
+      type: MessageType.RespError,
+      pathname: location.pathname
+    };
+  }
+
+  static createNotify<T>(method: string, params: T | null) {
     const msgId = generateUniqueId(16);
     return {
       msgId,
       method,
       data: params,
       type: MessageType.Notify,
+      pathname: location.pathname
     };
   }
 }

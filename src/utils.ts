@@ -11,7 +11,7 @@ export const buf2Hex = (buffer: ArrayBuffer) => { // buffer is an ArrayBuffer
   const byteArray = new Uint8Array(buffer);
 
   // for each element, we want to get its two-digit hexadecimal representation
-  const hexParts = [];
+  const hexParts: string[] = [];
   for (let i = 0; i < byteArray.length; i++) {
     // convert value to hexadecimal
     const hex = byteArray[i].toString(16);

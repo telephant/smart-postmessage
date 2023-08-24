@@ -1,17 +1,32 @@
+import typescript from '@rollup/plugin-typescript';
+import commonjs from '@rollup/plugin-commonjs';
 import resolve from '@rollup/plugin-node-resolve';
-import rollupTypescript from '@rollup/plugin-typescript';
+import {readFileSync} from 'fs';
 
-export default [
-  {
-    input: 'src/index.ts',
-    output: {
-      file: 'lib/index.js',
-      format: 'cjs',
-      exports: 'auto',
+const pkg = JSON.parse(readFileSync('package.json', {encoding: 'utf8'}));
+
+export default {
+  input: pkg.source,
+  file: pkg.typings,
+  external: [
+    ...Object.keys(pkg.dependencies || {}),
+    ...Object.keys(pkg.peerDependencies || {}),
+  ],
+  output: [
+    {
+      dir: './dist',
+      format: 'esm',
+      sourcemap: true,
+      exports: 'named',
     },
-    plugins: [
-      resolve(),
-      rollupTypescript(),
-    ]
-  },
-];
+  ],
+  plugins: [
+    resolve(),
+    commonjs(),
+    typescript({
+      tsconfig: "./tsconfig.json",
+      declaration: true,
+      declarationDir: "./dist/types",
+    }),
+  ],
+};
