@@ -1,7 +1,7 @@
 {
   "name": "promise-message",
-  "version": "1.0.0",
-  "description": "use message like promise",
+  "version": "1.0.2",
+  "description": "Promisefy your postmessage transportation. Use request, subscribe, observe to make the postmessage simple and easy.",
   "main": "./src/index.ts",
   "scripts": {
     "build": "rollup --config",

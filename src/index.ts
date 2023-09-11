@@ -48,6 +48,8 @@ class SmartPostMessage<
 
   private _observeFunc: Map<keyof OMap, ((data: MessageStructure<keyof SMap>) => any)[]>;
 
+  private _closed: boolean;
+
   constructor(spec: SmartPostMessageSpecs) {
     this._establishTimeout = spec.establishTimeout ?? 30000;
     this._establishInterval = spec.establishInterval ?? 500;
@@ -60,9 +62,11 @@ class SmartPostMessage<
     this._subscribeFunc = new Map();
     this._observeFunc = new Map();
 
-    this._currentWindow.addEventListener('message', (event: MessageEvent) => {
-      this.handleSubscription(event);
-    });
+    this._closed = true;
+
+    this.handleSubscription = this.handleSubscription.bind(this);
+
+    this._currentWindow.addEventListener('message', this.handleSubscription);
   }
 
   async establish(isParent: boolean) {
@@ -92,6 +96,7 @@ class SmartPostMessage<
           timer = null;
         }
         this._currentWindow.removeEventListener('message', sonCb);
+        this._closed = false;
         resolve(1);
       }
     };
@@ -115,6 +120,7 @@ class SmartPostMessage<
         }
         console.log('💙💙💙 ESTABLISH PARENT FINISH! NOTIFY: establish');
         this._targetWindow.postMessage('establish', this._targetOrigin);
+        this._closed = false;
         resolve(1);
       }
     };
@@ -137,6 +143,9 @@ class SmartPostMessage<
 
   async request<T extends keyof RMap>(method: string, args: Parameters<RMap[T]> | null = null) {
     console.log(`${this._logPrefix} [SEND-REQ] [${method}]| args`, args);
+    if (this._closed) {
+      throw new Error('postMessage has been closed.');
+    }
 
     const msg = MessageHandler.createReq<Parameters<RMap[T]> | null>(method, args);
 
@@ -263,6 +272,11 @@ class SmartPostMessage<
     for (let i = 0; i < cbs?.length; i++) {
       cbs[i](event);
     }
+  }
+
+  async finish() {
+    this._currentWindow.removeEventListener('message', this.handleSubscription);
+    this._closed = true;
   }
 }
 
