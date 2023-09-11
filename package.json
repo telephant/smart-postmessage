@@ -1,5 +1,5 @@
 {
-  "name": "promise-message",
+  "name": "smart-postmessage",
   "version": "1.0.2",
   "description": "Promisefy your postmessage transportation. Use request, subscribe, observe to make the postmessage simple and easy.",
   "main": "./src/index.ts",
@@ -11,6 +11,9 @@
     "promise",
     "message"
   ],
+  "publishConfig": {
+    "registry": "https://registry.npmjs.org/"
+  },
   "type": "module",
   "author": "telephant11",
   "license": "ISC",
