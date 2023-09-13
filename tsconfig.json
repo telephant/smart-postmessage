@@ -22,17 +22,17 @@
     "noEmit": true,
     "downlevelIteration": true,
     "declaration": true,
-    "declarationMap": true,
+    "declarationMap": false,
     "sourceMap": false,
     "noImplicitThis": false,
     "outDir": "./dist",
   },
   "include": [
     "src/**/*.ts",
-    "expample/**/*.ts",
   ],
   "exclude": [
     "node_modules",
+    "example",
     "index.html"
   ]
 }

@@ -1,12 +1,17 @@
 {
   "name": "smart-postmessage",
-  "version": "1.0.2",
+  "version": "1.0.7",
   "description": "Easy to communicate with iframe.Use request, subscribe, observe and notify to make postmessage simple and easy.",
-  "main": "./src/index.ts",
+  "main": "dist/index.js",
   "scripts": {
     "build": "rollup --config",
     "test": "tsc --project ./tsconfig.json"
   },
+  "source": "src/index.ts",
+  "types": "dist/index.d.ts",
+  "files": [
+    "dist"
+  ],
   "keywords": [
     "postmessage",
     "promise",
@@ -21,12 +26,13 @@
   "author": "telephant11",
   "license": "ISC",
   "devDependencies": {
+    "@rollup/plugin-commonjs": "^25.0.4",
     "@rollup/plugin-node-resolve": "^15.0.1",
+    "@rollup/plugin-terser": "^0.4.3",
     "@rollup/plugin-typescript": "^10.0.1",
     "rollup": "^3.6.0",
-    "tslib": "^2.4.1"
-  },
-  "dependencies": {
+    "rollup-plugin-dts": "^6.0.2",
+    "tslib": "^2.4.1",
     "typescript": "^4.9.3"
   }
 }
