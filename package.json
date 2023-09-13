@@ -1,6 +1,6 @@
 {
   "name": "smart-postmessage",
-  "version": "1.0.7",
+  "version": "1.0.8",
   "description": "Easy to communicate with iframe.Use request, subscribe, observe and notify to make postmessage simple and easy.",
   "main": "dist/index.js",
   "scripts": {
@@ -8,7 +8,7 @@
     "test": "tsc --project ./tsconfig.json"
   },
   "source": "src/index.ts",
-  "types": "dist/index.d.ts",
+  "types": "./dist/types/index.d.ts",
   "files": [
     "dist"
   ],

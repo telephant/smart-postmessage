@@ -28,6 +28,7 @@ export default [
       commonjs(),
       typescript({
         tsconfig: "./tsconfig.json",
+        declaration: false,
       }),
       terser()
     ],
@@ -38,9 +39,11 @@ export default [
       file: pkg.types,
       format: "esm"
     },
-    plugins: [dts({
-      tsconfig: './tsconfig.json'
-    })],
+    plugins: [
+      dts({
+        tsconfig: './tsconfig.json'
+      }),
+    ],
     watch: {
       include: 'src/**'
     }
