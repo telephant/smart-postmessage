@@ -1,3 +1,4 @@
+import debug from 'debug';
 import MessageHandler, {
   MessageType,
   MessageStructure,
@@ -50,6 +51,8 @@ class SmartPostMessage<
 
   private _closed: boolean;
 
+  private _logger: debug.Debugger = debug('smart-pmsg');
+
   constructor(spec: SmartPostMessageSpecs) {
     this._establishTimeout = spec.establishTimeout ?? 30000;
     this._establishInterval = spec.establishInterval ?? 500;
@@ -61,6 +64,8 @@ class SmartPostMessage<
 
     this._subscribeFunc = new Map();
     this._observeFunc = new Map();
+
+    this._logger == debug(this._logPrefix);
 
     this._closed = true;
 
@@ -84,13 +89,13 @@ class SmartPostMessage<
 
     const sonCb = (event: MessageEvent) => {
       if (event.data === 'syncSent') {
-        console.log('🩷🩷🩷 ESTABLISH SON Recv:syncSent,  SEND: syncRecv');
+        this._logger('ESTABLISH >> SON >> RECV: syncSent,  SEND: syncRecv');
         this._targetWindow.postMessage('syncRecv', this._targetOrigin);
         return;
       }
 
       if (event.data === 'establish') {
-        console.log('🩷🩷🩷 ESTABLISH SON ESTABLISH!');
+        this._logger('ESTABLISH >> SON >> ESTABLISH');
         if (timer) {
           clearTimeout(timer);
           timer = null;
@@ -118,7 +123,7 @@ class SmartPostMessage<
           clearTimeout(timer);
           timer = null;
         }
-        console.log('💙💙💙 ESTABLISH PARENT FINISH! NOTIFY: establish');
+        this._logger('ESTABLISH >> PARENT >> FINISH. NOTIFY: establish');
         this._targetWindow.postMessage('establish', this._targetOrigin);
         this._closed = false;
         resolve(1);
@@ -133,7 +138,7 @@ class SmartPostMessage<
 
     this._currentWindow.addEventListener('message', msgCb, { once: true });
 
-    console.log('💙💙💙 ESTABLISH PARENT SEND: syncSent');
+    this._logger('ESTABLISH >> PARENT >> SEND: syncSent');
     this._targetWindow.postMessage('syncSent', this._targetOrigin);
   }
 
@@ -142,7 +147,8 @@ class SmartPostMessage<
   }
 
   async request<T extends keyof RMap>(method: string, args: Parameters<RMap[T]> | null = null) {
-    console.log(`${this._logPrefix} [SEND-REQ] [${method}]| args`, args);
+    this._logger(`[SEND-REQ] [${method}] | args`, args);
+
     if (this._closed) {
       throw new Error('postMessage has been closed.');
     }
@@ -161,7 +167,8 @@ class SmartPostMessage<
   }
 
   notify<T>(method: string, args: T | null = null) {
-    console.log(`${this._logPrefix} [SEND-NOTIFY] [${method}]| args`, args);
+    this._logger(`[SEND-NOTIFY] [${method}] | args`, args);
+
     const msg = MessageHandler.createNotify<T>(method, args);
     this._send(msg);
   }
@@ -230,7 +237,7 @@ class SmartPostMessage<
     if (!callbacks) {
       return;
     }
-    console.log(`${this._logPrefix} [RECV-REQ] [${method}] | event`, event);
+    this._logger(`[RECV-REQ] [${method}] | event`, event);
 
     for (const cb of callbacks) {
       try {
@@ -250,7 +257,7 @@ class SmartPostMessage<
     if (!respData) {
       return;
     }
-    console.log(`${this._logPrefix} [RECV-RESP] | event`, event);
+    this._logger('[RECV-RESP] | event', event);
 
     if (event.error) {
       respData.reject(event.error);
@@ -267,7 +274,7 @@ class SmartPostMessage<
     if (!cbs || cbs.length === 0) {
       return;
     }
-    console.log(`${this._logPrefix} [RECV-NOTIFY] [${method}]| event`, event);
+    this._logger(`[RECV-NOTIFY] [${method}]| event: `, event);
 
     for (let i = 0; i < cbs?.length; i++) {
       cbs[i](event);
@@ -275,6 +282,7 @@ class SmartPostMessage<
   }
 
   async finish() {
+    this._logger('CONNECTION FINISHED.');
     this._currentWindow.removeEventListener('message', this.handleSubscription);
     this._closed = true;
   }
