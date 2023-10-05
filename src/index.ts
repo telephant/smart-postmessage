@@ -10,7 +10,7 @@ export interface RequestItem<R> {
   reject: (reason: any) => void;
 }
 
-interface SmartPostMessageSpecs {
+export interface SmartPostMessageSpecs {
   currentWindow: Window;
   targetWindow: Window;
   targetOrigin: string;
@@ -24,10 +24,15 @@ export type MethodMap = {
   [key: string]: (...args: any[]) => any;
 };
 
+export type NotifyMap = {
+  [key: string]: any;
+};
+
 class SmartPostMessage<
-  SMap extends MethodMap,
+  SMap extends NotifyMap,
   OMap extends MethodMap,
   RMap extends MethodMap,
+  NMap extends NotifyMap,
 > {
   private _establishTimeout: number;
 
@@ -45,17 +50,20 @@ class SmartPostMessage<
 
   private _requestedMap: Map<string, RequestItem<any>> = new Map();
 
-  private _subscribeFunc: Map<keyof SMap, ((data: MessageStructure<keyof SMap>) => any)[]>;
+  // TODO: data type.
+  private _subscribeFunc: Map<keyof SMap, ((data: any) => any)[]>;
 
-  private _observeFunc: Map<keyof OMap, ((data: MessageStructure<keyof SMap>) => any)[]>;
+  private _observeFunc: Map<keyof OMap, ((data: MessageStructure<keyof OMap>) => any)[]>;
 
   private _closed: boolean;
 
   private _logger: debug.Debugger = debug('smart-pmsg');
 
+  private _startConnect: number;
+
   constructor(spec: SmartPostMessageSpecs) {
-    this._establishTimeout = spec.establishTimeout ?? 30000;
-    this._establishInterval = spec.establishInterval ?? 500;
+    this._establishTimeout = spec?.establishTimeout ?? 30000;
+    this._establishInterval = spec?.establishInterval ?? 500;
     this._targetOrigin = spec.targetOrigin;
     this._targetPathname = spec.targetPathname || '*';
     this._currentWindow = spec.currentWindow;
@@ -68,24 +76,30 @@ class SmartPostMessage<
     this._logger == debug(this._logPrefix);
 
     this._closed = true;
+    this._startConnect = 0;
 
     this.handleSubscription = this.handleSubscription.bind(this);
 
     this._currentWindow.addEventListener('message', this.handleSubscription);
   }
 
+  setTimeout(timeout: number) {
+    this._establishTimeout = timeout;
+  }
+
   async establish(isParent: boolean) {
+    this._startConnect = Date.now();
     return new Promise((resolve, reject) => {
       if (isParent) {
-        this._parentEstablish(resolve, reject);
+        return this._parentEstablish(resolve, reject);
       } else {
-        this._sonEstablish(resolve, reject);
+        return this._sonEstablish(resolve, reject);
       }
     });
   }
 
-  private _sonEstablish(resolve: (value: any) => void, reject: () => void) {
-    let timer: number | null = null;
+  private _sonEstablish(resolve: (value: any) => void, reject: (reason: any) => void) {
+    let timer: NodeJS.Timeout | null = null;
 
     const sonCb = (event: MessageEvent) => {
       if (event.data === 'syncSent') {
@@ -110,17 +124,25 @@ class SmartPostMessage<
 
     timer = setTimeout(() => {
       this._currentWindow.removeEventListener('message', sonCb);
-      reject();
+      reject('connect failed');
     }, this._establishTimeout);
   }
 
-  private _parentEstablish(resolve: (value: any) => void, reject: () => void) {
-    let timer: number | null = null;
+  private _parentEstablish(
+    resolve: (value: any) => void,
+    reject: (reason: any) => void,
+  ) {
+    let timer: NodeJS.Timeout | null = null;
+    let timeroutTimer: NodeJS.Timeout | null = null;
 
     const msgCb = (event: MessageEvent) => {
       if (event.data === 'syncRecv') {
         if (timer) {
           clearTimeout(timer);
+          timer = null;
+        }
+        if (timeroutTimer) {
+          clearTimeout(timeroutTimer);
           timer = null;
         }
         this._logger('ESTABLISH >> PARENT >> FINISH. NOTIFY: establish');
@@ -130,8 +152,18 @@ class SmartPostMessage<
       }
     };
 
+    // start a timeout timer.
+    timeroutTimer = setTimeout(() => {
+      this._currentWindow.removeEventListener('message', msgCb);
+      reject('connect failed');
+    }, this._establishTimeout);
+
     // start a timer.
     timer = setTimeout(() => {
+      if (timeroutTimer) {
+        clearTimeout(timeroutTimer);
+        timer = null;
+      }
       this._currentWindow.removeEventListener('message', msgCb);
       this._parentEstablish(resolve, reject);
     }, this._establishInterval);
@@ -143,7 +175,7 @@ class SmartPostMessage<
   }
 
   _send(msg: MessageStructure) {
-    this._targetWindow.postMessage(msg, this._targetOrigin);
+    this._targetWindow.postMessage(msg, '*');
   }
 
   async request<T extends keyof RMap>(method: string, args: Parameters<RMap[T]> | null = null) {
@@ -166,14 +198,14 @@ class SmartPostMessage<
     });
   }
 
-  notify<T>(method: string, args: T | null = null) {
-    this._logger(`[SEND-NOTIFY] [${method}] | args`, args);
+  notify<N extends keyof NMap>(method: N, args: NMap[N] | null = null) {
+    this._logger(`[SEND-NOTIFY] [${method as string}] | args`, args);
 
-    const msg = MessageHandler.createNotify<T>(method, args);
+    const msg = MessageHandler.createNotify<N>(method as string, args);
     this._send(msg);
   }
 
-  subscribe<S extends keyof SMap>(method: S, cb: SMap[S]) {
+  subscribe<S extends keyof SMap>(method: S, cb: (data: SMap[S]) => void) {
     if (!this._subscribeFunc.has(method)) {
       this._subscribeFunc.set(method, []);
     }
@@ -209,6 +241,10 @@ class SmartPostMessage<
   }
 
   handleSubscription(event: MessageEvent) {
+    if (!event.data.method) {
+      return;
+    }
+
     if (event.origin !== this._targetOrigin && this._targetOrigin !== '*') {
       return;
     }
@@ -277,7 +313,7 @@ class SmartPostMessage<
     this._logger(`[RECV-NOTIFY] [${method}]| event: `, event);
 
     for (let i = 0; i < cbs?.length; i++) {
-      cbs[i](event);
+      cbs[i](event.data);
     }
   }
 
