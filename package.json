@@ -1,6 +1,6 @@
 {
   "name": "smart-postmessage",
-  "version": "1.0.10",
+  "version": "1.0.11",
   "description": "Easy to communicate with iframe.Use request, subscribe, observe and notify to make postmessage simple and easy.",
   "main": "dist/index.js",
   "scripts": {
@@ -42,5 +42,20 @@
   },
   "dependencies": {
     "debug": "^4.3.4"
-  }
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/telephant/smart-postmessage"
+  },
+  "contributors": [
+    {
+      "name" : "telephant",
+      "email" : "telephant11@gmail.com",
+      "url" : "https://github.com/telephant/"
+    },
+    {
+      "name" : "duanduanpei",
+      "email" : "duanduanpei@matrx.com"
+    }
+  ]
 }
